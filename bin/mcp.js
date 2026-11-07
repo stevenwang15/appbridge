@@ -108,8 +108,12 @@ function main() {
     });
   });
 
+  // 不要用 process.exit：管道上的 stdout 是异步写的，强制退出会截断最后一行 JSON。
+  // 设 exitCode 后让事件循环自然排空即可。
   rl.on('close', () => {
-    queue.finally(() => process.exit(0));
+    queue.finally(() => {
+      process.exitCode = 0;
+    });
   });
 }
 

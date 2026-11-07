@@ -20,11 +20,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: 内核
-        run: node --test test/
-
-      - name: 插件契约
-        run: node --test packages/dsh-plugin/test/
+      # 不传目录：Node 22 会把位置参数当 glob，`test/` 会被当成模块去 require。
+      - name: 测试（内核 + 插件契约）
+        run: node --test
 
       - name: 工具数量
         run: |
