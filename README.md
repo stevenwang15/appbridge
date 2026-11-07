@@ -164,7 +164,7 @@ npm install appbridge-dsh-plugin
 ## 调用范围
 
 `policy.json` 决定这些工具能碰到哪里。它是**配置**，不是目的——
-想让 AI 多干点，往白名单里加；想收窄，删掉。
+想让 AI 多干点，往范围里加；想收窄，删掉。
 
 ```json
 {
@@ -215,7 +215,7 @@ appbridge/                 内核（npm: appbridge-core）
 ├── src/mcp.js             MCP 工具描述
 ├── src/config.js          配置合并
 ├── tools.json             48 个工具
-├── policy.json            权限
+├── policy.json            调用范围
 ├── recipes/               配方
 └── packages/dsh-plugin/   DSH 插件壳（薄）
 

@@ -64,8 +64,8 @@ test('描述符能真的执行（echo）', async () => {
   assert.deepStrictEqual(result, { text: '插件壳通了' })
 })
 
-test('写类工具在插件壳里仍然走权限白名单', async () => {
+test('写类工具在插件壳里仍然受 allowWrite 约束', async () => {
   const write = buildToolDescriptors().find((d) => d.name === 'fs_write')
   assert.ok(write)
-  await assert.rejects(() => write.run({ path: '/etc/passwd', content: 'x' }), /权限/)
+  await assert.rejects(() => write.run({ path: '/etc/passwd', content: 'x' }), /范围/)
 })

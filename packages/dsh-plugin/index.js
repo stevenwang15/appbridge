@@ -1,7 +1,7 @@
 // appbridge — DeepSeek Harness 插件壳（薄）。
 //
 // 这个文件只做一件事：把内核的工具表注册成 DSH 原生工具。
-// 所有逻辑（工具调用器、配方、权限、异步任务）都在 appbridge-core 里。
+// 所有逻辑（工具调用器、配方、调用范围、异步任务）都在 appbridge-core 里。
 //
 // 如果当前宿主没有暴露 @deepseek-ai/dsh-tools，改用 MCP 方式接入：
 //     node <appbridge-core>/bin/mcp.js

@@ -1,6 +1,6 @@
 'use strict';
 
-// 工具调用器：查表 → 补参数 → 解析成具体调用 → 过权限 → 执行 → 记账
+// 工具调用器：查表 → 补参数 → 解析成具体调用 → 查范围 → 执行 → 记账
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
@@ -28,7 +28,7 @@ function loadJSON(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-// 路径白名单：目录当整棵子树用；".../**" 也当整棵子树用。
+// 路径范围：目录当整棵子树用；".../**" 也当整棵子树用。
 function matchPattern(pattern, target, base) {
   const root = path.resolve(base || process.cwd());
   const p = path.resolve(root, pattern);
@@ -77,7 +77,7 @@ function buildPlan(tool, params, configVars) {
   return plan;
 }
 
-// 权限配置里的路径也支持 {{config.vault}} 和 ~，base 固定相对程序目录（与 cwd 无关）
+// 范围配置里的路径也支持 {{config.vault}} 和 ~，base 固定相对程序目录（与 cwd 无关）
 function normalizePolicy(raw, configVars) {
   const expand = (value) => (typeof value === 'string' ? expandHome(subst(value, configVars || {})) : value);
   const base = expand(raw.base === undefined ? '.' : raw.base);
@@ -93,31 +93,31 @@ function normalizePolicy(raw, configVars) {
 const PATH_KINDS = new Set(['fs', 'office', 'zip', 'csv']);
 
 function checkPermission(policy, toolName, plan) {
-  const deny = (msg) => {
-    throw new Error(`[权限] ${toolName}: ${msg}`);
+  const outOfScope = (msg) => {
+    throw new Error(`[范围] ${toolName}: ${msg}`);
   };
   const readList = policy.allowRead || [];
   const writeList = policy.allowWrite || [];
-  const checkPath = (target, list, label) => {
+  const checkPath = (target, list, label, field) => {
     if (!target) return;
     if (!list.some((p) => matchPattern(p, target, policy.base))) {
-      deny(`${label} 不在白名单: ${path.resolve(policy.base || '.', String(target))}`);
+      outOfScope(`${label}不在 ${field} 中: ${path.resolve(policy.base || '.', String(target))}`);
     }
   };
 
-  if (PATH_KINDS.has(plan.kind) && !plan.path) deny('缺少 path');
+  if (PATH_KINDS.has(plan.kind) && !plan.path) outOfScope('缺少 path');
 
   // path 按读/写判断；src 只读；dest 只写
   if (plan.path && (PATH_KINDS.has(plan.kind) || plan.writes !== undefined)) {
-    if (plan.writes === true) checkPath(plan.path, writeList, '写入路径');
-    else checkPath(plan.path, readList, '读取路径');
+    if (plan.writes === true) checkPath(plan.path, writeList, '写入路径', 'allowWrite');
+    else checkPath(plan.path, readList, '读取路径', 'allowRead');
   }
-  if (plan.src) checkPath(plan.src, readList, '源路径');
-  if (plan.dest) checkPath(plan.dest, writeList, '目标路径');
+  if (plan.src) checkPath(plan.src, readList, '源路径', 'allowRead');
+  if (plan.dest) checkPath(plan.dest, writeList, '目标路径', 'allowWrite');
 
   if (plan.kind === 'cli') {
     const cmd = path.basename(String(plan.command || ''));
-    if (!(policy.allowExec || []).includes(cmd)) deny(`命令不在白名单: ${cmd}`);
+    if (!(policy.allowExec || []).includes(cmd)) outOfScope(`命令不在 allowExec 中: ${cmd}`);
   }
 
   if (plan.kind === 'http') {
@@ -125,9 +125,9 @@ function checkPermission(policy, toolName, plan) {
     try {
       host = new URL(String(plan.url)).hostname;
     } catch {
-      deny(`URL 非法: ${plan.url}`);
+      outOfScope(`URL 非法: ${plan.url}`);
     }
-    if (!(policy.allowNet || []).includes(host)) deny(`网络目标不在白名单: ${host}`);
+    if (!(policy.allowNet || []).includes(host)) outOfScope(`网络目标不在 allowNet 中: ${host}`);
   }
 }
 
@@ -527,7 +527,7 @@ function createInvoker(options = {}) {
 
     const params = resolveParams(name, tool, given, configVars);
     const plan = buildPlan(tool, params, configVars);
-    // 相对路径统一挂到 policy.base 上：权限检查和实际执行必须是同一个根，
+    // 相对路径统一挂到 policy.base 上：范围检查和实际执行必须是同一个根，
     // 否则结果会随“从哪个目录启动”而变。
     // 只有真的碰文件系统的类型才归一化路径（json.get 的 path 是取值表达式，不能动）
     if (PATH_KINDS.has(plan.kind) && plan.path) plan.path = path.resolve(policy.base, String(plan.path));

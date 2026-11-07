@@ -57,9 +57,9 @@ test('写文件再读回来', async () => {
   assert.strictEqual(result.data, '第一行\n第二行\n');
 });
 
-test('白名单外的路径被拒绝', async () => {
+test('范围外的路径会被挡下', async () => {
   const { invoker } = sandbox();
-  await assert.rejects(() => invoker.call('fs.read', { path: '/etc/hosts' }), /权限/);
+  await assert.rejects(() => invoker.call('fs.read', { path: '/etc/hosts' }), /范围/);
 });
 
 test('--dry 只出计划，不落盘', async () => {
@@ -340,9 +340,9 @@ test('csv 解析：引号、逗号、双引号转义', async () => {
   assert.strictEqual(result.data.rows[1].note, '引号"转义');
 });
 
-test('写类工具必须走写白名单', async () => {
+test('写类工具必须落在 allowWrite 范围里', async () => {
   const { dir, invoker } = sandbox();
   const policy = invoker.getPolicy();
   invoker.setPolicy({ ...policy, allowWrite: [] });
-  await assert.rejects(() => invoker.call('fs.write', { path: path.join(dir, 'x.md'), content: 'x' }), /写入路径/);
+  await assert.rejects(() => invoker.call('fs.write', { path: path.join(dir, 'x.md'), content: 'x' }), /范围/);
 });
