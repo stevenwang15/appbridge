@@ -1,0 +1,851 @@
+{
+  "tools": {
+    "echo": {
+      "desc": "原样返回一段文本（自测用）",
+      "kind": "echo",
+      "template": "{{text}}",
+      "params": {
+        "text": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "delay": {
+      "desc": "空等一段时间（演示并行用）",
+      "kind": "delay",
+      "ms": "{{ms}}",
+      "params": {
+        "ms": {
+          "type": "number",
+          "default": 300
+        }
+      }
+    },
+    "fs.read": {
+      "desc": "读一个文本文件",
+      "kind": "fs",
+      "op": "read",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "fs.write": {
+      "desc": "写一个文本文件（自动建目录）",
+      "kind": "fs",
+      "op": "write",
+      "path": "{{path}}",
+      "content": "{{content}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "content": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "writes": true
+    },
+    "fs.append": {
+      "desc": "往文件末尾追加内容（不存在则新建）",
+      "kind": "fs",
+      "op": "append",
+      "path": "{{path}}",
+      "content": "{{content}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "content": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "writes": true
+    },
+    "fs.list": {
+      "desc": "列出一个目录的内容（不递归）",
+      "kind": "fs",
+      "op": "list",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "default": "."
+        }
+      }
+    },
+    "fs.find": {
+      "desc": "递归找出某种扩展名的文件",
+      "kind": "fs",
+      "op": "find",
+      "path": "{{path}}",
+      "ext": "{{ext}}",
+      "limit": "{{limit}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "default": "."
+        },
+        "ext": {
+          "type": "string",
+          "default": "md"
+        },
+        "limit": {
+          "type": "number",
+          "default": 200
+        }
+      }
+    },
+    "fs.search": {
+      "desc": "在目录里按正则搜文本，返回 文件:行号: 内容",
+      "kind": "fs",
+      "op": "search",
+      "path": "{{path}}",
+      "pattern": "{{pattern}}",
+      "limit": "{{limit}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "default": "."
+        },
+        "pattern": {
+          "type": "string",
+          "required": true
+        },
+        "limit": {
+          "type": "number",
+          "default": 50
+        }
+      }
+    },
+    "text.join": {
+      "desc": "把一组文本用分隔符拼起来",
+      "kind": "text",
+      "op": "join",
+      "items": "{{items}}",
+      "sep": "{{sep}}",
+      "params": {
+        "items": {
+          "type": "array",
+          "default": []
+        },
+        "sep": {
+          "type": "string",
+          "default": "\n"
+        }
+      }
+    },
+    "json.get": {
+      "desc": "从对象里按点号路径取值，如 message.content",
+      "kind": "json",
+      "op": "get",
+      "data": "{{data}}",
+      "path": "{{path}}",
+      "params": {
+        "data": {
+          "required": true
+        },
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "cli.run": {
+      "desc": "执行一个命令行程序（可喂标准输入）",
+      "kind": "cli",
+      "command": "{{command}}",
+      "args": "{{argv}}",
+      "cwd": "{{cwd}}",
+      "stdin": "{{stdin}}",
+      "timeout": 60000,
+      "params": {
+        "command": {
+          "type": "string",
+          "required": true
+        },
+        "argv": {
+          "type": "array",
+          "default": []
+        },
+        "cwd": {
+          "type": "string",
+          "default": "."
+        },
+        "stdin": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "git.log": {
+      "desc": "列出 git 提交记录（一提交一行）",
+      "kind": "cli",
+      "command": "git",
+      "args": [
+        "log",
+        "--oneline",
+        "--no-decorate",
+        "-n",
+        "{{limit}}"
+      ],
+      "cwd": "{{repo}}",
+      "timeout": 20000,
+      "params": {
+        "repo": {
+          "type": "string",
+          "default": "."
+        },
+        "limit": {
+          "type": "number",
+          "default": 20
+        }
+      }
+    },
+    "git.status": {
+      "desc": "git 工作区改动",
+      "kind": "cli",
+      "command": "git",
+      "args": [
+        "status",
+        "--short"
+      ],
+      "cwd": "{{repo}}",
+      "params": {
+        "repo": {
+          "type": "string",
+          "default": "."
+        }
+      }
+    },
+    "git.diff": {
+      "desc": "git 改动统计",
+      "kind": "cli",
+      "command": "git",
+      "args": [
+        "diff",
+        "--stat"
+      ],
+      "cwd": "{{repo}}",
+      "params": {
+        "repo": {
+          "type": "string",
+          "default": "."
+        }
+      }
+    },
+    "sys.info": {
+      "desc": "系统信息（内核/架构）",
+      "kind": "cli",
+      "command": "uname",
+      "args": [
+        "-a"
+      ],
+      "platform": [
+        "darwin",
+        "linux"
+      ]
+    },
+    "sys.disk": {
+      "desc": "磁盘剩余空间",
+      "kind": "cli",
+      "command": "df",
+      "args": [
+        "-h",
+        "{{path}}"
+      ],
+      "params": {
+        "path": {
+          "type": "string",
+          "default": "."
+        }
+      },
+      "platform": [
+        "darwin",
+        "linux"
+      ]
+    },
+    "sys.notify": {
+      "desc": "弹一个 macOS 通知",
+      "kind": "cli",
+      "command": "osascript",
+      "args": [
+        "-e",
+        "display notification \"{{text}}\" with title \"{{title}}\""
+      ],
+      "params": {
+        "text": {
+          "type": "string",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "default": "appbridge"
+        }
+      },
+      "platform": [
+        "darwin"
+      ]
+    },
+    "sys.say": {
+      "desc": "把一段文字读出来",
+      "kind": "cli",
+      "command": "say",
+      "args": [
+        "{{text}}"
+      ],
+      "timeout": 120000,
+      "params": {
+        "text": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "platform": [
+        "darwin"
+      ]
+    },
+    "clip.read": {
+      "desc": "读剪贴板",
+      "kind": "cli",
+      "command": "pbpaste",
+      "args": [],
+      "platform": [
+        "darwin"
+      ]
+    },
+    "clip.write": {
+      "desc": "写剪贴板",
+      "kind": "cli",
+      "command": "pbcopy",
+      "args": [],
+      "stdin": "{{text}}",
+      "params": {
+        "text": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "platform": [
+        "darwin"
+      ]
+    },
+    "app.open": {
+      "desc": "用系统默认程序打开文件或网址",
+      "kind": "cli",
+      "command": "open",
+      "args": [
+        "{{target}}"
+      ],
+      "params": {
+        "target": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "platform": [
+        "darwin"
+      ]
+    },
+    "http.get": {
+      "desc": "发一个 GET 请求",
+      "kind": "http",
+      "method": "GET",
+      "url": "{{url}}",
+      "timeout": 10000,
+      "params": {
+        "url": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "unwrap": "body"
+    },
+    "ollama.models": {
+      "desc": "列出本机 Ollama 已下载的模型",
+      "kind": "http",
+      "method": "GET",
+      "url": "http://127.0.0.1:11434/api/tags",
+      "parse": "json",
+      "timeout": 5000,
+      "unwrap": "body"
+    },
+    "ollama.chat": {
+      "desc": "问本机 Ollama 一个模型，返回 {message:{content}}",
+      "kind": "http",
+      "method": "POST",
+      "url": "http://127.0.0.1:11434/api/chat",
+      "parse": "json",
+      "timeout": 300000,
+      "body": {
+        "model": "{{model}}",
+        "messages": [
+          {
+            "role": "user",
+            "content": "{{prompt}}"
+          }
+        ],
+        "stream": false,
+        "think": "{{think}}",
+        "options": {
+          "num_predict": "{{numPredict}}"
+        }
+      },
+      "params": {
+        "model": {
+          "type": "string",
+          "default": "{{config.model}}"
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "think": {
+          "type": "boolean",
+          "default": false
+        },
+        "numPredict": {
+          "type": "number",
+          "default": 800
+        }
+      },
+      "unwrap": "body"
+    },
+    "obs.list": {
+      "desc": "列出 Obsidian 库里的 markdown 笔记",
+      "kind": "fs",
+      "op": "find",
+      "path": "{{vault}}",
+      "ext": "md",
+      "limit": "{{limit}}",
+      "params": {
+        "vault": {
+          "type": "string",
+          "default": "{{config.vault}}"
+        },
+        "limit": {
+          "type": "number",
+          "default": 500
+        }
+      }
+    },
+    "obs.search": {
+      "desc": "在 Obsidian 库里全文搜索",
+      "kind": "fs",
+      "op": "search",
+      "path": "{{vault}}",
+      "pattern": "{{pattern}}",
+      "limit": "{{limit}}",
+      "params": {
+        "vault": {
+          "type": "string",
+          "default": "{{config.vault}}"
+        },
+        "pattern": {
+          "type": "string",
+          "required": true
+        },
+        "limit": {
+          "type": "number",
+          "default": 50
+        }
+      }
+    },
+    "obs.read": {
+      "desc": "读一篇 Obsidian 笔记",
+      "kind": "fs",
+      "op": "read",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "obs.write": {
+      "desc": "写一篇 Obsidian 笔记（覆盖）",
+      "kind": "fs",
+      "op": "write",
+      "path": "{{path}}",
+      "content": "{{content}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "content": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "writes": true
+    },
+    "obs.append": {
+      "desc": "往一篇 Obsidian 笔记末尾追加",
+      "kind": "fs",
+      "op": "append",
+      "path": "{{path}}",
+      "content": "{{content}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "content": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "writes": true
+    },
+    "tesseract.ocr": {
+      "desc": "图片转文字（OCR）",
+      "kind": "cli",
+      "command": "tesseract",
+      "args": [
+        "{{image}}",
+        "stdout",
+        "-l",
+        "{{lang}}"
+      ],
+      "timeout": 180000,
+      "params": {
+        "image": {
+          "type": "string",
+          "required": true
+        },
+        "lang": {
+          "type": "string",
+          "default": "chi_sim+eng"
+        }
+      }
+    },
+    "blender.run": {
+      "desc": "后台跑一个 Blender Python 脚本",
+      "kind": "cli",
+      "command": "blender",
+      "args": [
+        "-b",
+        "-P",
+        "{{script}}"
+      ],
+      "timeout": 600000,
+      "params": {
+        "script": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "docx.read": {
+      "desc": "读 Word 文档（.docx）的正文",
+      "kind": "office",
+      "op": "docx-read",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "docx.write": {
+      "desc": "生成一个 Word 文档（.docx），不需要装 Office",
+      "kind": "office",
+      "op": "docx-write",
+      "path": "{{path}}",
+      "text": "{{text}}",
+      "writes": true,
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "text": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "xlsx.read": {
+      "desc": "读 Excel（.xlsx），返回每张表的二维数组",
+      "kind": "office",
+      "op": "xlsx-read",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "pptx.read": {
+      "desc": "读 PowerPoint（.pptx）每页的文字",
+      "kind": "office",
+      "op": "pptx-read",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "zip.list": {
+      "desc": "列出压缩包里的文件",
+      "kind": "zip",
+      "op": "list",
+      "path": "{{path}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "zip.read": {
+      "desc": "读压缩包里某个文件的文本内容",
+      "kind": "zip",
+      "op": "read",
+      "path": "{{path}}",
+      "entry": "{{entry}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "entry": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "zip.extract": {
+      "desc": "解压到指定目录（防目录穿越）",
+      "kind": "zip",
+      "op": "extract",
+      "path": "{{path}}",
+      "dest": "{{dest}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "dest": {
+          "type": "string",
+          "default": "out/unzip"
+        }
+      }
+    },
+    "csv.read": {
+      "desc": "读 CSV，返回行数组或按表头转对象",
+      "kind": "csv",
+      "op": "read",
+      "path": "{{path}}",
+      "header": "{{header}}",
+      "params": {
+        "path": {
+          "type": "string",
+          "required": true
+        },
+        "header": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "git.branch": {
+      "desc": "列出分支",
+      "kind": "cli",
+      "command": "git",
+      "args": [
+        "branch",
+        "-a"
+      ],
+      "cwd": "{{repo}}",
+      "params": {
+        "repo": {
+          "type": "string",
+          "default": "."
+        }
+      }
+    },
+    "git.show": {
+      "desc": "查看某个提交的改动统计",
+      "kind": "cli",
+      "command": "git",
+      "args": [
+        "show",
+        "--stat",
+        "--oneline",
+        "{{ref}}"
+      ],
+      "cwd": "{{repo}}",
+      "params": {
+        "repo": {
+          "type": "string",
+          "default": "."
+        },
+        "ref": {
+          "type": "string",
+          "default": "HEAD"
+        }
+      }
+    },
+    "sys.screenshot": {
+      "desc": "截屏存成文件（macOS，首次需授权屏幕录制）",
+      "kind": "cli",
+      "command": "screencapture",
+      "args": [
+        "-x",
+        "{{path}}"
+      ],
+      "path": "{{path}}",
+      "writes": true,
+      "platform": [
+        "darwin"
+      ],
+      "params": {
+        "path": {
+          "type": "string",
+          "default": "out/screen-{{stamp}}.png"
+        }
+      }
+    },
+    "sys.process": {
+      "desc": "按 CPU 排序列出进程（macOS）",
+      "kind": "cli",
+      "command": "ps",
+      "args": [
+        "-Ao",
+        "pid,pcpu,pmem,comm",
+        "-r"
+      ],
+      "platform": [
+        "darwin"
+      ]
+    },
+    "img.info": {
+      "desc": "看图片尺寸和格式",
+      "kind": "cli",
+      "command": "sips",
+      "args": [
+        "-g",
+        "pixelWidth",
+        "-g",
+        "pixelHeight",
+        "-g",
+        "format",
+        "{{image}}"
+      ],
+      "platform": [
+        "darwin"
+      ],
+      "params": {
+        "image": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "img.resize": {
+      "desc": "按最长边缩放图片",
+      "kind": "cli",
+      "command": "sips",
+      "args": [
+        "-Z",
+        "{{max}}",
+        "{{src}}",
+        "--out",
+        "{{dest}}"
+      ],
+      "src": "{{src}}",
+      "dest": "{{dest}}",
+      "platform": [
+        "darwin"
+      ],
+      "params": {
+        "src": {
+          "type": "string",
+          "required": true
+        },
+        "dest": {
+          "type": "string",
+          "required": true
+        },
+        "max": {
+          "type": "number",
+          "default": 1200
+        }
+      }
+    },
+    "textutil.convert": {
+      "desc": "把 doc/rtf/html/odt 转成纯文本（macOS 自带）",
+      "kind": "cli",
+      "command": "textutil",
+      "args": [
+        "-convert",
+        "txt",
+        "-stdout",
+        "{{file}}"
+      ],
+      "platform": [
+        "darwin"
+      ],
+      "params": {
+        "file": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "obs.tags": {
+      "desc": "统计 Obsidian 库里的标签及出现次数",
+      "kind": "fs",
+      "op": "tags",
+      "path": "{{vault}}",
+      "limit": "{{limit}}",
+      "params": {
+        "vault": {
+          "type": "string",
+          "default": "{{config.vault}}"
+        },
+        "limit": {
+          "type": "number",
+          "default": 100
+        }
+      }
+    },
+    "obs.backlinks": {
+      "desc": "找出哪些笔记链接到某一篇（反向链接）",
+      "kind": "fs",
+      "op": "backlinks",
+      "path": "{{vault}}",
+      "note": "{{note}}",
+      "limit": "{{limit}}",
+      "params": {
+        "vault": {
+          "type": "string",
+          "default": "{{config.vault}}"
+        },
+        "note": {
+          "type": "string",
+          "required": true
+        },
+        "limit": {
+          "type": "number",
+          "default": 100
+        }
+      }
+    }
+  }
+}

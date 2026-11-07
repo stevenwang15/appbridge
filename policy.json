@@ -1,0 +1,35 @@
+{
+  "base": ".",
+  "allowExec": [
+    "git",
+    "node",
+    "echo",
+    "cat",
+    "osascript",
+    "say",
+    "pbpaste",
+    "pbcopy",
+    "open",
+    "tesseract",
+    "blender",
+    "uname",
+    "sw_vers",
+    "df",
+    "screencapture",
+    "sips",
+    "ps",
+    "textutil"
+  ],
+  "allowRead": [
+    "./**",
+    "{{config.vault}}/**"
+  ],
+  "allowWrite": [
+    "./**",
+    "{{config.vault}}/**"
+  ],
+  "allowNet": [
+    "127.0.0.1",
+    "localhost"
+  ]
+}

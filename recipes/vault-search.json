@@ -1,0 +1,18 @@
+{
+  "name": "vault-search",
+  "when": "在 Obsidian 库里搜关键词，把命中整理成清单",
+  "args": {
+    "q": { "type": "string", "required": true },
+    "out": { "type": "string", "default": "out/search-{{stamp}}.md" }
+  },
+  "steps": [
+    { "id": "hits", "tool": "obs.search", "args": { "pattern": "{{q}}" } },
+    { "id": "body", "tool": "text.join", "args": { "items": "{{$1}}", "sep": "\n" } },
+    {
+      "id": "doc",
+      "tool": "text.join",
+      "args": { "items": ["# 搜索: {{q}}", "", "时间: {{date}} {{time}}", "", "{{$2}}"], "sep": "\n" }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "{{out}}", "content": "{{$3}}" } }
+  ]
+}

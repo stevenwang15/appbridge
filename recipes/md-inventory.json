@@ -1,0 +1,21 @@
+{
+  "name": "md-inventory",
+  "when": "统计目录下的文件，生成一份清单",
+  "args": {
+    "root": { "type": "string", "default": "." },
+    "out": { "type": "string", "default": "out/md-inventory-{{date}}.md" }
+  },
+  "steps": [
+    { "id": "list", "tool": "fs.list", "args": { "path": "{{root}}" } },
+    { "id": "body", "tool": "text.join", "args": { "items": "{{$1}}", "sep": "\n" } },
+    {
+      "id": "doc",
+      "tool": "text.join",
+      "args": {
+        "items": ["# 目录清单", "", "生成时间: {{date}} {{time}}", "目录: {{root}}", "", "{{$2}}"],
+        "sep": "\n"
+      }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "{{out}}", "content": "{{$3}}" } }
+  ]
+}

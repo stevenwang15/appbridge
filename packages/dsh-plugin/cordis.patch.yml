@@ -1,0 +1,8 @@
+# appbridge bundle layer.
+#
+# Inserts this package's plugin row into the profile composition.
+# The plugin (index.js) exports name = "appbridge" and inject = ["tools"],
+# and registers one DSH native tool per appbridge tool in tools.json.
+- insert:
+    - id: appbridge
+      name: appbridge-dsh-plugin

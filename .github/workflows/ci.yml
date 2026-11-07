@@ -1,0 +1,40 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: 内核
+        run: node --test test/
+
+      - name: 插件契约
+        run: node --test packages/dsh-plugin/test/
+
+      - name: 工具数量
+        run: |
+          count=$(node bin/cli.js tools | wc -l)
+          echo "tools: $count"
+          test "$count" -ge 40
+
+      - name: MCP 冒烟
+        run: |
+          printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | node bin/mcp.js | grep -q '"tools"'

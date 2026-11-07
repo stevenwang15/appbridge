@@ -1,0 +1,29 @@
+{
+  "name": "docx-summary",
+  "when": "读一份 Word 文档，用本机模型总结，存成笔记",
+  "args": {
+    "file": { "type": "string", "required": true },
+    "model": { "type": "string", "default": "{{config.model}}" },
+    "out": { "type": "string", "default": "out/summary-{{stamp}}.md" }
+  },
+  "steps": [
+    { "id": "doc", "tool": "docx.read", "args": { "path": "{{file}}" } },
+    { "id": "text", "tool": "json.get", "args": { "data": "{{$1}}", "path": "text" } },
+    {
+      "id": "ask",
+      "tool": "ollama.chat",
+      "args": { "model": "{{model}}", "prompt": "把下面这份文档总结成 5 条要点，每条一行：\n\n{{$2}}" }
+    },
+    { "id": "summary", "tool": "json.get", "args": { "data": "{{$3}}", "path": "message.content" } },
+    {
+      "id": "note",
+      "tool": "text.join",
+      "args": {
+        "items": ["# 文档摘要", "", "来源: {{file}}", "模型: {{model}}", "时间: {{date}} {{time}}", "", "{{$4}}"],
+        "sep": "\n"
+      }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "{{out}}", "content": "{{$5}}" } },
+    { "id": "notify", "tool": "sys.notify", "args": { "text": "文档摘要好了: {{out}}", "title": "appbridge" } }
+  ]
+}

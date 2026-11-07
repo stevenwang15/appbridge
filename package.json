@@ -1,0 +1,59 @@
+{
+  "name": "appbridge-core",
+  "version": "0.1.0",
+  "description": "工具调用器 + 配方执行器：把电脑上的应用变成 agent 能调的动词表，并把步骤存成可复用的配方。零依赖，只用一个 Node。",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "bin": {
+    "appbridge": "bin/cli.js",
+    "appbridge-mcp": "bin/mcp.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "tools.json",
+    "policy.json",
+    "config.json",
+    "recipes/",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./invoke": "./src/invoke.js",
+    "./recipe": "./src/recipe.js",
+    "./mcp": "./src/mcp.js",
+    "./doctor": "./src/doctor.js",
+    "./config": "./src/config.js",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/cli.js",
+    "mcp": "node bin/mcp.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "agent",
+    "mcp",
+    "model-context-protocol",
+    "tools",
+    "workflow",
+    "recipe",
+    "automation",
+    "obsidian",
+    "ollama",
+    "docx"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stevenwang15/appbridge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stevenwang15/appbridge/issues"
+  },
+  "homepage": "https://github.com/stevenwang15/appbridge#readme"
+}

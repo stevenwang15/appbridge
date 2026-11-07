@@ -1,0 +1,17 @@
+# 本机配置（含个人路径），不要提交
+config.local.json
+
+# 运行时产物
+jobs/
+out/
+audit.jsonl
+*.log
+
+# 依赖与构建
+node_modules/
+.npmcache/
+*.tgz
+dist/
+
+# 系统
+.DS_Store

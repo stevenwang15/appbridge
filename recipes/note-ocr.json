@@ -1,0 +1,17 @@
+{
+  "name": "note-ocr",
+  "when": "把一张图片 OCR 成文字，存成笔记",
+  "args": {
+    "image": { "type": "string", "required": true },
+    "out": { "type": "string", "default": "out/ocr-{{stamp}}.md" }
+  },
+  "steps": [
+    { "id": "text", "tool": "tesseract.ocr", "args": { "image": "{{image}}" } },
+    {
+      "id": "doc",
+      "tool": "text.join",
+      "args": { "items": ["# OCR 结果", "", "来源: {{image}}", "时间: {{date}} {{time}}", "", "{{$1}}"], "sep": "\n" }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "{{out}}", "content": "{{$2}}" } }
+  ]
+}

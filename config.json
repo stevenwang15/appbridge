@@ -1,0 +1,6 @@
+{
+  "_说明": "这是可移植的默认配置。本机差异写进 config.local.json，不要改这个文件。",
+  "vault": "~/Documents/ObsidianVault",
+  "model": "llama3.2",
+  "policyBase": "."
+}

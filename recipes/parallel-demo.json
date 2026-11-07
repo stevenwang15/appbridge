@@ -1,0 +1,31 @@
+{
+  "name": "parallel-demo",
+  "when": "演示并行：三个耗时任务同时跑",
+  "steps": [
+    {
+      "id": "slow",
+      "parallel": [
+        { "id": "a", "tool": "delay", "args": { "ms": 800 } },
+        { "id": "b", "tool": "delay", "args": { "ms": 800 } },
+        { "id": "c", "tool": "delay", "args": { "ms": 800 } }
+      ]
+    },
+    {
+      "id": "report",
+      "tool": "text.join",
+      "args": {
+        "items": [
+          "# 并行演示",
+          "",
+          "三个 800ms 的任务同时发起，总耗时应该接近 800ms 而不是 2400ms。",
+          "",
+          "- a: {{steps.slow.a}}",
+          "- b: {{steps.slow.b}}",
+          "- c: {{steps.slow.c}}"
+        ],
+        "sep": "\n"
+      }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "out/parallel-demo.md", "content": "{{$2}}" } }
+  ]
+}

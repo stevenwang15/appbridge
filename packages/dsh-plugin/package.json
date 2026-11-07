@@ -1,0 +1,42 @@
+{
+  "name": "appbridge-dsh-plugin",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 插件壳：把 appbridge 内核的工具注册成 DSH 原生工具（薄壳，逻辑全在内核）。",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "toolset.js",
+    "cordis.patch.yml",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "appbridge",
+    "tools",
+    "mcp"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stevenwang15/appbridge.git",
+    "directory": "packages/dsh-plugin"
+  },
+  "dependencies": {
+    "appbridge-core": "^0.1.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "git-weekly",
+  "when": "把一个 git 仓库最近的提交整理成周报",
+  "args": {
+    "repo": { "type": "string", "default": "." },
+    "limit": { "type": "number", "default": 30 },
+    "out": { "type": "string", "default": "out/weekly-{{date}}.md" }
+  },
+  "steps": [
+    { "id": "log", "tool": "git.log", "args": { "repo": "{{repo}}", "limit": "{{limit}}" } },
+    {
+      "id": "doc",
+      "tool": "text.join",
+      "args": {
+        "items": ["# 周报 {{date}}", "", "## 提交记录", "", "{{$1}}", "", "## 下周计划", "", "- [ ] "],
+        "sep": "\n"
+      }
+    },
+    { "id": "save", "tool": "fs.write", "args": { "path": "{{out}}", "content": "{{$2}}" } }
+  ]
+}
